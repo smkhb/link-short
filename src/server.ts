@@ -1,6 +1,7 @@
 import Fastify from 'fastify';
 import config from './config';
-import { connectToDB } from './lib/drizzle';
+import { connectToDB, disconnectFromDB } from './lib/drizzle';
+import { appRoutes } from './routes';
 
 const fastify = Fastify({
   logger: {
@@ -14,22 +15,28 @@ const fastify = Fastify({
   },
 });
 
-connectToDB();
+async function start() {
+  try {
+    await connectToDB();
 
-fastify.get('/', async (_, reply) => {
-  reply.send({ hello: 'world' });
-});
+    await fastify.register(appRoutes);
 
-fastify.listen({ port: 3000 }, (error, address) => {
-  if (error) {
+    fastify.listen({ port: 3000 });
+
+    fastify.log.info(`Server listening at http://localhost:${config.PORT}`);
+  } catch (error) {
     fastify.log.error(error);
     process.exit(1);
   }
-  fastify.log.info(`Server listening at http://localhost:${address}`);
-});
+}
+start();
 
-process.on('SIGINT', async () => {
-  fastify.log.info('Received SIGINT. Shutting down gracefully...');
+const serverTermination = async (signal: string) => {
+  fastify.log.info(`Received ${signal}. Shutting down gracefully...`);
+  await disconnectFromDB();
   await fastify.close();
   process.exit(0);
-});
+};
+
+process.on('SIGTERM', () => serverTermination('SIGTERM'));
+process.on('SIGINT', () => serverTermination('SIGINT'));
