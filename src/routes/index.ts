@@ -1,7 +1,11 @@
 import { FastifyInstance } from 'fastify';
+import { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { authRoutes } from './auth';
 
-export async function appRoutes(fastify: FastifyInstance) {
-  fastify.get('/', async (_, reply) => {
+export async function appRoutes(app: FastifyInstance) {
+  const server = app.withTypeProvider<ZodTypeProvider>();
+
+  server.get('/', async (_, reply) => {
     return reply.status(200).send({
       message: 'Welcome to the Link Shortener API!',
       status: 'success',
@@ -9,6 +13,6 @@ export async function appRoutes(fastify: FastifyInstance) {
       timestamp: new Date().toISOString(),
     });
   });
-}
 
-// Add more routes as needed
+  await server.register(authRoutes, { prefix: '/auth' });
+}
