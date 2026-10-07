@@ -1,5 +1,9 @@
 import Fastify from 'fastify';
 import config from './config';
+import cors from '@fastify/cors';
+import corsOptions from './lib/cors';
+import rateLimit from '@fastify/rate-limit';
+import fastifyRateLimit from './lib/rate-limit';
 import { connectToDB, disconnectFromDB } from './lib/drizzle';
 import { appRoutes } from './routes';
 
@@ -14,6 +18,9 @@ const fastify = Fastify({
     },
   },
 });
+
+fastify.register(cors, corsOptions);
+fastify.register(rateLimit, fastifyRateLimit('basic'));
 
 async function start() {
   try {
