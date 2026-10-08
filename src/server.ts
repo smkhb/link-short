@@ -19,6 +19,7 @@ import { appRoutes } from './routes';
 import fastifyCookie from '@fastify/cookie';
 import fastifyJwt from '@fastify/jwt';
 import { authPlugin } from './plugins/auth';
+import { ZodError } from 'zod';
 
 export async function buildServer() {
   const app = Fastify({
@@ -36,6 +37,26 @@ export async function buildServer() {
   // Configura os compiladores do Zod
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  // Tratamento global de erros de validação do Zod
+  app.setErrorHandler((error: FastifyError, _, reply) => {
+    if (error instanceof ZodError || error.validation) {
+      reply.log.error({ error }, 'Validation error occurred');
+      return reply.status(400).send({
+        code: 'Validation Error',
+        message: 'Validation failed for one or more fields',
+        errors: error.validation
+          ? error.validation
+          : { code: error.code, message: error.message },
+      });
+    }
+
+    const statusCode = error.statusCode || 500;
+    return reply.status(statusCode).send({
+      code: error.code || 'Internal Server Error',
+      message: error.message || 'An unexpected error occurred',
+    });
+  });
 
   // Configura o Swagger
   await app.register(fastifySwagger, {
