@@ -10,6 +10,7 @@ import z from 'zod';
 import { loginUserHandler } from '@/controllers/auth/loginUser';
 import fastifyRateLimit from '@/lib/rate-limit';
 import { refreshTokenHandler } from '@/controllers/auth/refreshToken';
+import { logoutUserHandler } from '@/controllers/auth/logoutUser';
 
 export async function authRoutes(app: FastifyInstance) {
   const server = app.withTypeProvider<ZodTypeProvider>();
@@ -105,5 +106,28 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     refreshTokenHandler,
+  );
+
+  server.delete(
+    '/logout',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: 'Logout a user',
+        description:
+          'Clears the refresh token cookie, effectively logging the user out.',
+        response: {
+          200: z.object({
+            message: z.string(),
+            status: z.literal('success'),
+          }),
+          500: z.object({
+            message: z.string(),
+            status: z.string(),
+          }),
+        },
+      },
+    },
+    logoutUserHandler,
   );
 }
