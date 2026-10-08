@@ -13,16 +13,24 @@ export const UserSchema = z.object({
     .min(6, 'Password must be at least 6 characters long'),
   role: z.enum(['user', 'admin']).default('user'),
   totalVisitCount: z.number().default(0),
-  passwordResetToken: z.string().optional(),
-  refreshToken: z.string().optional(),
-  createdAt: z.date().default(() => new Date()),
-  updatedAt: z.date().default(() => new Date()),
+  passwordResetToken: z.string().nullable().optional(),
+  refreshToken: z.string().nullable().optional(),
+  createdAt: z.union([z.date(), z.string(), z.iso.datetime()]),
+  updatedAt: z
+    .union([z.date(), z.string(), z.iso.datetime()])
+    .nullable()
+    .optional(),
+  deletedAt: z
+    .union([z.date(), z.string(), z.iso.datetime()])
+    .nullable()
+    .optional(),
 });
 
 export const CreateUserSchema = UserSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  deletedAt: true,
   passwordResetToken: true,
 });
 
@@ -32,7 +40,12 @@ export const UserParamsSchema = z.object({
   id: z.uuid({ message: 'Invalid user ID' }),
 });
 
-export const UserResponseSchema = UserSchema.omit({ password: true });
+export const UserResponseSchema = UserSchema.omit({
+  deletedAt: true,
+  password: true,
+  refreshToken: true,
+  passwordResetToken: true,
+});
 
 export type User = z.infer<typeof UserSchema>;
 export type CreateUser = z.infer<typeof CreateUserSchema>;

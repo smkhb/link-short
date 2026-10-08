@@ -2,7 +2,7 @@ import config from '@/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
-export const pool = new Pool({
+const pool = new Pool({
   connectionString: config.DATABASE_URL,
 });
 

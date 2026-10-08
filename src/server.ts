@@ -18,6 +18,7 @@ import { connectToDB, disconnectFromDB } from './lib/drizzle';
 import { appRoutes } from './routes';
 import fastifyCookie from '@fastify/cookie';
 import fastifyJwt from '@fastify/jwt';
+import { authPlugin } from './plugins/auth';
 
 export async function buildServer() {
   const app = Fastify({
@@ -71,6 +72,9 @@ export async function buildServer() {
       signed: false,
     },
   });
+
+  // Registra o plugin de autenticação
+  await app.register(authPlugin);
 
   // Registra o roteador principal da aplicação
   await app.register(appRoutes, { prefix: '/api' });

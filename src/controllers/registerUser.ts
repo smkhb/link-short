@@ -2,17 +2,17 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { CreateUser } from '@/schemas/user.schema';
 import config from '@/config';
 import bcrypt from 'bcrypt';
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { pool } from '@/lib/drizzle';
+import { db } from '@/lib/drizzle';
 import { usersTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { generateRefreshToken } from '@/lib/jwt';
+import { v7 as uuidv7 } from 'uuid';
 
 export async function registerUserHandler(
   request: FastifyRequest<{ Body: CreateUser }>,
   reply: FastifyReply,
 ): Promise<void> {
   const { name, email, password, role } = request.body;
-  const db = drizzle({ client: pool });
 
   if (role === 'admin' && !config.WHITELISTED_EMAILS?.includes(email)) {
     request.log.warn(
@@ -38,10 +38,12 @@ export async function registerUserHandler(
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
+  const userId = uuidv7();
 
   try {
-    const refreshToken = crypto.randomUUID().split('-')[0];
+    const refreshToken = generateRefreshToken({ userId });
     const user = {
+      id: userId,
       name,
       email,
       password: hashedPassword,
@@ -49,18 +51,20 @@ export async function registerUserHandler(
       refreshToken,
     };
 
-    await db.insert(usersTable).values(user);
+    const [newUser] = await db.insert(usersTable).values(user).returning();
 
     reply.setCookie('refreshtoken', refreshToken, {
-      httpOnly: config.NODE_ENV === 'production',
-      secure: config.NODE_ENV === 'production',
+      path: '/',
+      httpOnly: true,
       sameSite: 'strict',
       maxAge: config.COOKIE_MAX_AGE,
+      secure: config.NODE_ENV === 'production',
     });
 
     reply.status(201).send({
       message: 'User registered successfully',
       status: 'success',
+      user: newUser,
     });
   } catch (error) {
     reply.status(500).send({
