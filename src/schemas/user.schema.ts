@@ -47,7 +47,13 @@ export const UserResponseSchema = UserSchema.omit({
   passwordResetToken: true,
 });
 
+export const LoginUserSchema = z.object({
+  email: z.email({ error: 'Email is required' }).trim(),
+  password: z.string({ error: 'Password is required' }).trim(),
+});
+
 export type User = z.infer<typeof UserSchema>;
 export type CreateUser = z.infer<typeof CreateUserSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;
 export type UserResponse = z.infer<typeof UserResponseSchema>;
+export type LoginUser = z.infer<typeof LoginUserSchema>;

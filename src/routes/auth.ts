@@ -1,8 +1,14 @@
-import { CreateUserSchema, UserResponseSchema } from '@/schemas/user.schema';
-import { registerUserHandler } from '@/controllers/registerUser';
+import {
+  CreateUserSchema,
+  LoginUserSchema,
+  UserResponseSchema,
+} from '@/schemas/user.schema';
+import { registerUserHandler } from '@/controllers/auth/registerUser';
 import { FastifyInstance } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
+import { loginUserHandler } from '@/controllers/auth/loginUser';
+import fastifyRateLimit from '@/lib/rate-limit';
 
 export async function authRoutes(app: FastifyInstance) {
   const server = app.withTypeProvider<ZodTypeProvider>();
@@ -38,5 +44,37 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     registerUserHandler,
+  );
+
+  server.post(
+    '/login',
+    {
+      config: {
+        rateLimit: fastifyRateLimit('auth'),
+      },
+      schema: {
+        tags: ['auth'],
+        summary: 'Login a user',
+        description:
+          'Authenticates a user, generates a access token, and returns a success status.',
+        body: LoginUserSchema,
+        response: {
+          200: z.object({
+            message: z.string(),
+            status: z.literal('success'),
+            accessToken: z.string(),
+          }),
+          401: z.object({
+            message: z.string(),
+            status: z.literal('error'),
+          }),
+          500: z.object({
+            message: z.string(),
+            status: z.string(),
+          }),
+        },
+      },
+    },
+    loginUserHandler,
   );
 }
