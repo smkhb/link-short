@@ -42,7 +42,7 @@ export const loginUserHandler = async (
       .set({ refreshToken })
       .where(eq(usersTable.email, email));
 
-    reply.setCookie('refreshtoken', refreshToken, {
+    reply.setCookie('refreshToken', refreshToken, {
       path: '/',
       httpOnly: true,
       sameSite: 'strict',

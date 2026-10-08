@@ -9,6 +9,7 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
 import { loginUserHandler } from '@/controllers/auth/loginUser';
 import fastifyRateLimit from '@/lib/rate-limit';
+import { refreshTokenHandler } from '@/controllers/auth/refreshToken';
 
 export async function authRoutes(app: FastifyInstance) {
   const server = app.withTypeProvider<ZodTypeProvider>();
@@ -76,5 +77,33 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     loginUserHandler,
+  );
+
+  server.get(
+    '/refresh-token',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: 'Refresh access token',
+        description:
+          'Generates a new access token using the refresh token stored in the cookie.',
+        response: {
+          200: z.object({
+            message: z.string(),
+            status: z.literal('success'),
+            accessToken: z.string(),
+          }),
+          401: z.object({
+            message: z.string(),
+            status: z.literal('error'),
+          }),
+          500: z.object({
+            message: z.string(),
+            status: z.string(),
+          }),
+        },
+      },
+    },
+    refreshTokenHandler,
   );
 }

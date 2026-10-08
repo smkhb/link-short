@@ -53,7 +53,7 @@ export async function registerUserHandler(
 
     const [newUser] = await db.insert(usersTable).values(user).returning();
 
-    reply.setCookie('refreshtoken', refreshToken, {
+    reply.setCookie('refreshToken', refreshToken, {
       path: '/',
       httpOnly: true,
       sameSite: 'strict',
