@@ -1,3 +1,4 @@
+import { registerUserHandler } from '@/controllers/registerUser';
 import { CreateUserSchema, UserResponseSchema } from '@/schemas/user.schema';
 import { FastifyInstance } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
@@ -15,7 +16,6 @@ export async function authRoutes(app: FastifyInstance) {
           201: z.object({
             message: z.string(),
             status: z.string(),
-            user: UserResponseSchema,
           }),
         },
       },

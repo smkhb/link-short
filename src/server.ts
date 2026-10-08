@@ -16,6 +16,8 @@ import corsOptions from './lib/cors';
 import fastifyRateLimit from './lib/rate-limit';
 import { connectToDB, disconnectFromDB } from './lib/drizzle';
 import { appRoutes } from './routes';
+import fastifyCookie from '@fastify/cookie';
+import fastifyJwt from '@fastify/jwt';
 
 export async function buildServer() {
   const app = Fastify({
@@ -55,6 +57,20 @@ export async function buildServer() {
   // Configura CORS e Rate Limit
   await app.register(cors, corsOptions);
   await app.register(rateLimit, fastifyRateLimit('basic'));
+
+  // Configura cookies e JWT
+  await app.register(fastifyCookie, {
+    secret: config.COOKIE_SECRET,
+    parseOptions: {},
+  });
+
+  await app.register(fastifyJwt, {
+    secret: config.JWT_SECRET,
+    cookie: {
+      cookieName: 'refreshtoken',
+      signed: false,
+    },
+  });
 
   // Registra o roteador principal da aplicação
   await app.register(appRoutes, { prefix: '/api' });

@@ -18,6 +18,9 @@ const config = {
   CORS_WHITELIST,
   WINDOW_MS: _1H_IN_MS,
   COOKIE_MAX_AGE: _7D_IN_MS,
+  WHITELISTED_EMAILS: process.env.WHITELISTED_EMAILS?.split(','),
+  COOKIE_SECRET: process.env.COOKIE_SECRET!,
+  JWT_SECRET: process.env.JWT_SECRET!,
 };
 
 export default config;

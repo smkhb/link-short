@@ -12,6 +12,9 @@ export const UserSchema = z.object({
     .trim()
     .min(6, 'Password must be at least 6 characters long'),
   role: z.enum(['user', 'admin']).default('user'),
+  totalVisitCount: z.number().default(0),
+  passwordResetToken: z.string().optional(),
+  refreshToken: z.string().optional(),
   createdAt: z.date().default(() => new Date()),
   updatedAt: z.date().default(() => new Date()),
 });
@@ -20,6 +23,7 @@ export const CreateUserSchema = UserSchema.omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  passwordResetToken: true,
 });
 
 export const UpdateUserSchema = CreateUserSchema.omit({ role: true }).partial();
