@@ -21,6 +21,11 @@ const config = {
   WHITELISTED_EMAILS: process.env.WHITELISTED_EMAILS?.split(','),
   COOKIE_SECRET: process.env.COOKIE_SECRET!,
   JWT_SECRET: process.env.JWT_SECRET!,
+  RESEND_API_KEY: process.env.RESEND_API_KEY!,
+  SMTP_HOST: process.env.SMTP_HOST!,
+  SMTP_PORT: process.env.SMTP_PORT!,
+  SMTP_SECURE: false,
+  SMTP_EMAIL_FROM: process.env.SMTP_EMAIL_FROM!,
 };
 
 export default config;

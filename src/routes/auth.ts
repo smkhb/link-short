@@ -1,5 +1,6 @@
 import {
   CreateUserSchema,
+  ForgotPasswordSchema,
   LoginUserSchema,
   UserResponseSchema,
 } from '@/schemas/user.schema';
@@ -11,6 +12,7 @@ import { loginUserHandler } from '@/controllers/auth/loginUser';
 import fastifyRateLimit from '@/lib/rate-limit';
 import { refreshTokenHandler } from '@/controllers/auth/refreshToken';
 import { logoutUserHandler } from '@/controllers/auth/logoutUser';
+import { forgotPasswordHandler } from '@/controllers/auth/forgotPassword';
 
 export async function authRoutes(app: FastifyInstance) {
   const server = app.withTypeProvider<ZodTypeProvider>();
@@ -129,5 +131,32 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     logoutUserHandler,
+  );
+
+  server.post(
+    '/forgot-password',
+    {
+      config: {
+        rateLimit: fastifyRateLimit('auth'),
+      },
+      schema: {
+        tags: ['auth'],
+        summary: 'Forgot password',
+        description:
+          'Sends a password reset email to the user with a reset token.',
+        body: ForgotPasswordSchema,
+        response: {
+          200: z.object({
+            message: z.string(),
+            status: z.literal('success'),
+          }),
+          500: z.object({
+            message: z.string(),
+            status: z.string(),
+          }),
+        },
+      },
+    },
+    forgotPasswordHandler,
   );
 }
