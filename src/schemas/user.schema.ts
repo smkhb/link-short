@@ -56,9 +56,22 @@ export const ForgotPasswordSchema = z.object({
   email: z.email({ error: 'Email is required' }).trim(),
 });
 
+export const ResetPasswordSchema = z.object({
+  newPassword: z
+    .string({ error: 'New password is required' })
+    .trim()
+    .min(6, 'New password must be at least 6 characters long'),
+});
+
+export const ResetPasswordQuerySchema = z.object({
+  token: z.string({ error: 'Token is required' }).trim(),
+});
+
 export type User = z.infer<typeof UserSchema>;
 export type CreateUser = z.infer<typeof CreateUserSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type LoginUser = z.infer<typeof LoginUserSchema>;
 export type ForgotPassword = z.infer<typeof ForgotPasswordSchema>;
+export type ResetPassword = z.infer<typeof ResetPasswordSchema>;
+export type ResetPasswordQuery = z.infer<typeof ResetPasswordQuerySchema>;

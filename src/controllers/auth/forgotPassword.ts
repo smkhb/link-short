@@ -5,6 +5,8 @@ import nodemailerTransporter from '@/lib/nodemailer';
 import { ForgotPassword } from '@/schemas/user.schema';
 import { eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import crypto from 'crypto';
+import { hashToken } from '@/lib/hashToken';
 
 export const forgotPasswordHandler = async (
   request: FastifyRequest<{ Body: ForgotPassword }>,
@@ -18,7 +20,7 @@ export const forgotPasswordHandler = async (
       .from(usersTable)
       .where(eq(usersTable.email, email));
 
-    if (!isEmailValid) {
+    if (isEmailValid.length === 0) {
       await new Promise((resolve) => setTimeout(resolve, 100));
       return reply.status(200).send({
         message: `If that email address is in our system, we have sent a reset link to it. Please check your email.`,
@@ -27,6 +29,11 @@ export const forgotPasswordHandler = async (
     }
 
     const passwordResetToken = generateResetLinkToken({ email });
+    const hashedToken = hashToken(passwordResetToken);
+    await db
+      .update(usersTable)
+      .set({ passwordResetToken: hashedToken })
+      .where(eq(usersTable.email, email));
 
     await nodemailerTransporter.verify();
     await nodemailerTransporter.sendMail({
@@ -34,7 +41,7 @@ export const forgotPasswordHandler = async (
       to: email,
       replyTo: 'no-reply@linkshort.local',
       subject: 'Password Reset Request',
-      text: `You requested a password reset. Click the link below to reset your password:\n\nhttps://localhost:3000/reset-password?token=${passwordResetToken}\n\nIf you did not request this, please ignore this email.`,
+      text: `You requested a password reset. Click the link below to reset your password:\n\nhttp://localhost:3000/reset-password?token=${passwordResetToken}\n\nIf you did not request this, please ignore this email.`,
     });
 
     reply.log.info(`Email sent to ${email} for password reset`);

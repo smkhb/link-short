@@ -7,7 +7,6 @@ import {
   serializerCompiler,
   validatorCompiler,
   jsonSchemaTransform,
-  hasZodFastifySchemaValidationErrors,
   ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 
@@ -52,6 +51,7 @@ export async function buildServer() {
     }
 
     const statusCode = error.statusCode || 500;
+    reply.log.error({ error }, 'Internal server error occurred');
     return reply.status(statusCode).send({
       code: error.code || 'Internal Server Error',
       message: error.message || 'An unexpected error occurred',
@@ -99,25 +99,6 @@ export async function buildServer() {
 
   // Registra o roteador principal da aplicação
   await app.register(appRoutes, { prefix: '/api' });
-
-  // Handler global de erros de validação
-  app.setErrorHandler((error: FastifyError, request, reply) => {
-    if (hasZodFastifySchemaValidationErrors(error)) {
-      return reply.status(400).send({
-        statusCode: 400,
-        error: 'Validation Error',
-        message: 'Invalid request data',
-        details: error.validation,
-      });
-    }
-
-    request.log.error(error);
-    return reply.status(500).send({
-      statusCode: 500,
-      error: 'Internal Server Error',
-      message: 'An unexpected error occurred',
-    });
-  });
 
   return app;
 }
