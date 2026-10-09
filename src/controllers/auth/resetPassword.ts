@@ -8,6 +8,7 @@ import bcrypt from 'bcrypt';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 import crypto from 'crypto';
 import { hashToken } from '@/lib/hashToken';
+import nodemailerTransporter from '@/lib/nodemailer';
 
 export const resetPasswordHandler = async (
   request: FastifyRequest<{
@@ -56,6 +57,14 @@ export const resetPasswordHandler = async (
       .set({ password: hashedPassword, passwordResetToken: null })
       .where(eq(usersTable.email, email));
 
+    await nodemailerTransporter.verify();
+    await nodemailerTransporter.sendMail({
+      from: `"Shortly" <no-reply@linkshort.local>`,
+      to: email,
+      replyTo: 'no-reply@linkshort.local',
+      subject: 'Password Reset Confirmation',
+      text: `Your password has been reset successfully.\n\nIf you did not request this, please ignore this email.`,
+    });
     reply.status(200).send({
       message: 'Password reset successfully.',
       status: 'success',

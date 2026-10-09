@@ -41,7 +41,7 @@ export const forgotPasswordHandler = async (
       to: email,
       replyTo: 'no-reply@linkshort.local',
       subject: 'Password Reset Request',
-      text: `You requested a password reset. Click the link below to reset your password:\n\nhttp://localhost:3000/reset-password?token=${passwordResetToken}\n\nIf you did not request this, please ignore this email.`,
+      text: `You requested a password reset. Click the link below to reset your password:\n\nhttp://localhost:3000/api/auth/reset-password?token=${passwordResetToken}\n\nIf you did not request this, please ignore this email.`,
     });
 
     reply.log.info(`Email sent to ${email} for password reset`);
