@@ -12,7 +12,7 @@ const _1H_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds
 const _7D_IN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 const config = {
-  PORT: process.env.PORT!,
+  PORT: Number(process.env.PORT) || 3000,
   DATABASE_URL: process.env.DATABASE_URL!,
   NODE_ENV: process.env.NODE_ENV!,
   CORS_WHITELIST,
