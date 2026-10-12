@@ -13,7 +13,7 @@ describe('GET /api/auth/reset-password', () => {
     await app.close();
   });
 
-  it('responde 200 com HTML', async () => {
+  it('returns 200 with HTML content', async () => {
     const res = await app.inject({
       method: 'GET',
       url: '/api/auth/reset-password?token=abc',
