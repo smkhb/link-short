@@ -1,13 +1,11 @@
 import { usersTable } from '@/db/schema';
 import { db } from '@/lib/drizzle';
 import { generateResetLinkToken } from '@/lib/jwt';
-import nodemailerTransporter from '@/lib/nodemailer';
+import { sendForgotPasswordEmail } from '@/lib/nodemailer';
 import { ForgotPassword } from '@/schemas/user.schema';
 import { eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import crypto from 'crypto';
 import { hashToken } from '@/lib/hashToken';
-import config from '@/config';
 
 export const forgotPasswordHandler = async (
   request: FastifyRequest<{ Body: ForgotPassword }>,
@@ -36,14 +34,7 @@ export const forgotPasswordHandler = async (
       .set({ passwordResetToken: hashedToken })
       .where(eq(usersTable.email, email));
 
-    await nodemailerTransporter.verify();
-    await nodemailerTransporter.sendMail({
-      from: `"Shortly" <no-reply@linkshort.local>`,
-      to: email,
-      replyTo: 'no-reply@linkshort.local',
-      subject: 'Password Reset Request',
-      text: `You requested a password reset. Click the link below to reset your password:\n\nhttp://localhost:${config.PORT}/api/auth/reset-password?token=${passwordResetToken}\n\nIf you did not request this, please ignore this email.`,
-    });
+    await sendForgotPasswordEmail(email, passwordResetToken);
 
     reply.log.info(`Email sent to ${email} for password reset`);
     reply.status(200).send({

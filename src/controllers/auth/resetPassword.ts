@@ -1,24 +1,21 @@
 import { usersTable } from '@/db/schema';
 import { db } from '@/lib/drizzle';
 import { ResetLinkPayload, verifyResetLinkToken } from '@/lib/jwt';
-import { ResetPassword, ResetPasswordQuery } from '@/schemas/user.schema';
+import { ResetPassword } from '@/schemas/user.schema';
 import { eq } from 'drizzle-orm';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import bcrypt from 'bcrypt';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
-import crypto from 'crypto';
 import { hashToken } from '@/lib/hashToken';
-import nodemailerTransporter from '@/lib/nodemailer';
+import { sendResetPasswordConfirmationEmail } from '@/lib/nodemailer';
 
 export const resetPasswordHandler = async (
   request: FastifyRequest<{
     Body: ResetPassword;
-    Querystring: ResetPasswordQuery;
   }>,
   reply: FastifyReply,
 ): Promise<void> => {
-  const { newPassword } = request.body;
-  const { token } = request.query;
+  const { token, newPassword } = request.body;
 
   try {
     const { email } = verifyResetLinkToken(token) as ResetLinkPayload;
@@ -57,14 +54,7 @@ export const resetPasswordHandler = async (
       .set({ password: hashedPassword, passwordResetToken: null })
       .where(eq(usersTable.email, email));
 
-    await nodemailerTransporter.verify();
-    await nodemailerTransporter.sendMail({
-      from: `"Shortly" <no-reply@linkshort.local>`,
-      to: email,
-      replyTo: 'no-reply@linkshort.local',
-      subject: 'Password Reset Confirmation',
-      text: `Your password has been reset successfully.\n\nIf you did not request this, please ignore this email.`,
-    });
+    await sendResetPasswordConfirmationEmail(email);
     reply.status(200).send({
       message: 'Password reset successfully.',
       status: 'success',
