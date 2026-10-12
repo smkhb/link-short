@@ -15,6 +15,7 @@ import { refreshTokenHandler } from '@/controllers/auth/refreshToken';
 import { logoutUserHandler } from '@/controllers/auth/logoutUser';
 import { forgotPasswordHandler } from '@/controllers/auth/forgotPassword';
 import { resetPasswordHandler } from '@/controllers/auth/resetPassword';
+import { resetPasswordWebHandler } from '@/controllers/auth/resetPasswordWeb';
 
 export async function authRoutes(app: FastifyInstance) {
   const server = app.withTypeProvider<ZodTypeProvider>();
@@ -160,6 +161,36 @@ export async function authRoutes(app: FastifyInstance) {
       },
     },
     forgotPasswordHandler,
+  );
+
+  server.get(
+    '/reset-password',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: 'Reset password page',
+        description:
+          'Serves the reset password HTML page with the reset token embedded in the form.',
+        querystring: z.object({
+          token: z.string(),
+        }),
+        response: {
+          200: {
+            description: 'HTML page content for resetting the password',
+            content: {
+              'text/html': {
+                schema: z.string().describe('HTML page content'),
+              },
+            },
+          },
+          500: z.object({
+            message: z.string(),
+            status: z.string(),
+          }),
+        },
+      },
+    },
+    resetPasswordWebHandler,
   );
 
   server.post(
