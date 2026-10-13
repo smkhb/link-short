@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify';
 import { buildTestApp } from '../helpers/app';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { clearDatabase } from '../helpers/db';
 
 describe('POST /api/auth/register', () => {
