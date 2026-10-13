@@ -36,6 +36,18 @@ describe('GET /api/auth/reset-password', () => {
     await app.close();
   });
 
+  it('returns 200 with HTML content', async () => {
+    const token = await requestResetAndGetToken(app);
+
+    const res = await app.inject({
+      method: 'GET',
+      url: `/api/auth/reset-password?token=${token}`,
+    });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['content-type']).toMatch(/text\/html/);
+  });
+
   it('resets the password with the token from the email', async () => {
     const token = await requestResetAndGetToken(app);
 
