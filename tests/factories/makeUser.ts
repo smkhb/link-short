@@ -5,17 +5,17 @@ import bcrypt from 'bcrypt';
 import { generateRefreshToken } from '@/lib/jwt';
 import z from 'zod';
 
-const testUserSchema = z.object({
+const userSchema = z.object({
   name: z.string().default(`I'm trying to be a user`),
   email: z.email().default('user@example.com'),
   password: z.string().min(6).default('password123'),
   role: z.enum(['user', 'admin']).default('user'),
 });
 
-export type TestUser = z.input<typeof testUserSchema>;
+export type User = z.input<typeof userSchema>;
 
-export const makeUser = async (overrides: TestUser = {}) => {
-  const { name, email, password, role } = testUserSchema.parse(overrides);
+export const makeUser = async (overrides: User = {}) => {
+  const { name, email, password, role } = userSchema.parse(overrides);
 
   const userId = uuidv7();
   const hashedPassword = await bcrypt.hash(password, 10);
