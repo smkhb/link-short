@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { authRoutes } from './auth';
-
+import { userRoutes } from './user';
 
 export async function appRoutes(app: FastifyInstance) {
   const server = app.withTypeProvider<ZodTypeProvider>();
@@ -16,4 +16,5 @@ export async function appRoutes(app: FastifyInstance) {
   });
 
   await server.register(authRoutes, { prefix: '/auth' });
+  await server.register(userRoutes, { prefix: '/user' });
 }
