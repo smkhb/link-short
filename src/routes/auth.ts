@@ -116,6 +116,7 @@ export async function authRoutes(app: FastifyInstance) {
   server.delete(
     '/logout',
     {
+      onRequest: [app.authenticate],
       schema: {
         tags: ['auth'],
         summary: 'Logout a user',
