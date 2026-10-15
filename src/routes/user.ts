@@ -1,6 +1,7 @@
 import { deleteCurrentUserHandler } from '@/controllers/user/deleteCurrentUser';
 import { getCurrentUserHandler } from '@/controllers/user/getCurrentUser';
-import { UserResponseSchema } from '@/schemas/user.schema';
+import { updateCurrentUserHandler } from '@/controllers/user/updateCurrentUser';
+import { UpdateUserSchema, UserResponseSchema } from '@/schemas/user.schema';
 import { FastifyInstance } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import z from 'zod';
@@ -64,5 +65,35 @@ export async function userRoutes(app: FastifyInstance) {
       },
     },
     deleteCurrentUserHandler,
+  );
+
+  server.patch(
+    '/current',
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ['user'],
+        summary: 'Update current user',
+        description:
+          'Updates the currently authenticated user based on the session.',
+        body: UpdateUserSchema,
+        response: {
+          200: z.object({
+            message: z.string(),
+            status: z.literal('success'),
+            user: UserResponseSchema,
+          }),
+          401: z.object({
+            message: z.string(),
+            status: z.literal('error'),
+          }),
+          500: z.object({
+            message: z.string(),
+            status: z.string(),
+          }),
+        },
+      },
+    },
+    updateCurrentUserHandler,
   );
 }

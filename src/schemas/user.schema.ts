@@ -32,6 +32,8 @@ export const CreateUserSchema = UserSchema.omit({
   updatedAt: true,
   deletedAt: true,
   passwordResetToken: true,
+  totalVisitCount: true,
+  refreshToken: true,
 });
 
 export const UpdateUserSchema = CreateUserSchema.omit({ role: true }).partial();
