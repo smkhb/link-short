@@ -8,7 +8,6 @@ export async function getCurrentUserHandler(
   reply: FastifyReply,
 ): Promise<void> {
   const { userId } = request.user;
-  console.log('User from request:', userId);
 
   try {
     const [user] = await db

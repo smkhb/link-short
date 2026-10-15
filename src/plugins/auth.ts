@@ -1,6 +1,10 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import {
+  JsonWebTokenError,
+  NotBeforeError,
+  TokenExpiredError,
+} from 'jsonwebtoken';
 
 export const authPlugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorate(
@@ -8,22 +12,10 @@ export const authPlugin = fp(async (fastify: FastifyInstance) => {
     async (request: FastifyRequest, reply: FastifyReply) => {
       try {
         await request.jwtVerify();
-      } catch (error) {
-        if (error instanceof TokenExpiredError) {
-          return reply.status(401).send({
-            message: 'TOKEN_EXPIRED',
-            status: 'error',
-          });
-        }
-        if (error instanceof JsonWebTokenError) {
-          return reply.status(401).send({
-            message: 'TOKEN_INVALID',
-            status: 'error',
-          });
-        }
+      } catch (error: any) {
         return reply.status(401).send({
-          message: 'TOKEN_VERIFICATION_FAILED',
           status: 'error',
+          message: 'TOKEN_VERIFICATION_FAILED',
         });
       }
     },
