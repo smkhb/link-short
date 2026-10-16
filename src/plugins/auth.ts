@@ -1,10 +1,5 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import fp from 'fastify-plugin';
-import {
-  JsonWebTokenError,
-  NotBeforeError,
-  TokenExpiredError,
-} from 'jsonwebtoken';
 
 export const authPlugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorate(
