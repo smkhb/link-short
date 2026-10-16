@@ -13,6 +13,7 @@ const _7D_IN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 const config = {
   PORT: Number(process.env.PORT) || 3000,
+  CLIENT_URL: process.env.CLIENT_URL!,
   DATABASE_URL: process.env.DATABASE_URL!,
   NODE_ENV: process.env.NODE_ENV!,
   CORS_WHITELIST,
