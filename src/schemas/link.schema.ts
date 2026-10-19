@@ -1,6 +1,7 @@
 import z from 'zod';
 
 export const LinkSchema = z.object({
+  id: z.uuid(),
   title: z.string().optional(),
   destination: z.url({ message: 'Destination URL is required' }),
   backHalf: z.string().optional(),
@@ -19,6 +20,7 @@ export const LinkSchema = z.object({
 });
 
 export const CreateLinkSchema = LinkSchema.omit({
+  id: true,
   creator: true,
   shortLink: true,
   totalVisitCount: true,

@@ -25,6 +25,7 @@ export const usersTable = snakeCase.table('users', {
 });
 
 export const linksTable = snakeCase.table('links', {
+  id: uuid().primaryKey(),
   title: varchar({ length: 255 }),
   destination: varchar({ length: 2048 }).notNull(),
   backHalf: varchar({ length: 255 }).notNull().unique(),

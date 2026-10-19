@@ -4,6 +4,7 @@ import { db } from '@/lib/drizzle';
 import { CreateLink } from '@/schemas/link.schema';
 import { generateBackHalf } from '@/utils';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { v7 as uuidv7 } from 'uuid';
 
 export async function generateShortLinkHandler(
   request: FastifyRequest<{ Body: CreateLink }>,
@@ -11,13 +12,14 @@ export async function generateShortLinkHandler(
 ): Promise<void> {
   const { userId } = request.user;
   const { destination, backHalf, title } = request.body;
-
+  const id = uuidv7();
   const verifiedBackHalf = backHalf || generateBackHalf();
 
   try {
     const [shortLink] = await db
       .insert(linksTable)
       .values({
+        id,
         title,
         destination,
         backHalf: verifiedBackHalf,
