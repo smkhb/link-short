@@ -1,4 +1,5 @@
 import { generateShortLinkHandler } from '@/controllers/links/generateShortLink';
+import { getCurrentUserShortLinksHandler } from '@/controllers/links/getCurrentUserShortLinks';
 import { CreateLinkSchema, LinkResponseSchema } from '@/schemas/link.schema';
 import { FastifyInstance } from 'fastify';
 import { ZodTypeProvider } from 'fastify-type-provider-zod';
@@ -35,5 +36,34 @@ export async function linkRoutes(app: FastifyInstance) {
       },
     },
     generateShortLinkHandler,
+  );
+
+  server.get(
+    '/my-links',
+    {
+      onRequest: [app.authenticate],
+      schema: {
+        tags: ['link'],
+        summary: 'Get all links for the current user',
+        description:
+          'Retrieves all links associated with the currently authenticated user based on the session.',
+        response: {
+          200: z.object({
+            message: z.string(),
+            status: z.literal('success'),
+            links: z.array(LinkResponseSchema),
+          }),
+          401: z.object({
+            message: z.string(),
+            status: z.literal('error'),
+          }),
+          500: z.object({
+            message: z.string(),
+            status: z.string(),
+          }),
+        },
+      },
+    },
+    getCurrentUserShortLinksHandler,
   );
 }
