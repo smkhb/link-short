@@ -57,7 +57,11 @@ export async function linkRoutes(app: FastifyInstance) {
           200: z.object({
             message: z.string(),
             status: z.literal('success'),
-            links: z.array(LinkResponseSchema),
+            data: z.object({
+              previous: z.string().nullable(),
+              next: z.string().nullable(),
+              links: z.array(LinkResponseSchema),
+            }),
           }),
           401: z.object({
             message: z.string(),
