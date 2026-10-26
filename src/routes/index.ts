@@ -3,6 +3,7 @@ import { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { authRoutes } from './auth';
 import { userRoutes } from './user';
 import { linkRoutes } from './link';
+import { redirectRoutes } from './redirect';
 
 export async function appRoutes(app: FastifyInstance) {
   const server = app.withTypeProvider<ZodTypeProvider>();
@@ -19,4 +20,5 @@ export async function appRoutes(app: FastifyInstance) {
   await server.register(authRoutes, { prefix: '/auth' });
   await server.register(userRoutes, { prefix: '/user' });
   await server.register(linkRoutes, { prefix: '/link' });
+  await server.register(redirectRoutes, { prefix: '/' });
 }

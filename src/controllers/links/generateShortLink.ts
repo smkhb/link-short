@@ -23,7 +23,7 @@ export async function generateShortLinkHandler(
         title,
         destination,
         backHalf: verifiedBackHalf,
-        shortLink: `${config.CLIENT_URL}/${verifiedBackHalf}`,
+        shortLink: `${config.CLIENT_URL}/api/${verifiedBackHalf}`,
         userId,
       })
       .returning();
