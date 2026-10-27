@@ -19,7 +19,8 @@ export async function getCurrentUserShortLinksHandler(
     offset = 0,
     limit = 5,
   } = request.query as RequestQuery;
-  const pageSize = Number(limit);
+  const pageSize = Math.min(Math.max(Number(limit) || 5, 1), 50);
+  const currentOffset = Math.max(Number(offset) || 0, 0);
 
   const targetColumn =
     sortBy === 'title'
@@ -29,6 +30,16 @@ export async function getCurrentUserShortLinksHandler(
         : linksTable.createdAt;
   const orderClause = order === 'asc' ? asc(targetColumn) : desc(targetColumn);
 
+  const buildPageUrl = (pageOffset: number): string => {
+    const params = new URLSearchParams({
+      offset: String(pageOffset),
+      limit: String(pageSize),
+      sortBy,
+      order,
+    });
+    if (search) params.set('search', search);
+    return `${baseUrl}?${params.toString()}`;
+  };
 
   try {
     const rawResults = await db
@@ -42,20 +53,18 @@ export async function getCurrentUserShortLinksHandler(
       )
       .orderBy(orderClause)
       .limit(pageSize + 1)
-      .offset(offset);
+      .offset(currentOffset);
 
     const hasNextPage = rawResults.length > pageSize;
 
     const links = hasNextPage ? rawResults.slice(0, pageSize) : rawResults;
 
     const previous =
-      offset <= 0
+      currentOffset <= 0
         ? null
-        : `${baseUrl}?offset=${Number(offset) - Number(pageSize)}&limit=${pageSize}`;
+        : buildPageUrl(Math.max(currentOffset - pageSize, 0));
 
-    const next = hasNextPage
-      ? `${baseUrl}?offset=${Number(offset) + Number(pageSize)}&limit=${pageSize}`
-      : null;
+    const next = hasNextPage ? buildPageUrl(currentOffset + pageSize) : null;
 
     reply.status(200).send({
       message: 'Short links retrieved successfully',
