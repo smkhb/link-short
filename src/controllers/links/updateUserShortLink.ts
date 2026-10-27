@@ -8,6 +8,7 @@ export async function updateUserShortLinkHandler(
   request: FastifyRequest<{ Body: UpdateLink }>,
   reply: FastifyReply,
 ): Promise<void> {
+  const { userId } = request.user;
   const { linkId } = request.params as { linkId: string };
   const { title, destination, backHalf } = request.body;
 
@@ -25,6 +26,14 @@ export async function updateUserShortLinkHandler(
     if (!link) {
       reply.status(404).send({
         message: 'Short link not found',
+        status: 'error',
+      });
+      return;
+    }
+
+    if (link.userId !== userId) {
+      reply.status(403).send({
+        message: 'You are not authorized to update this short link',
         status: 'error',
       });
       return;
