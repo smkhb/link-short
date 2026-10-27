@@ -2,7 +2,6 @@ import { FastifyInstance } from 'fastify';
 import { buildTestApp } from '../helpers/app';
 import { clearDatabase } from '../helpers/db';
 import { makeUser } from '../factories/makeUser';
-import { LinkResponseSchema } from '@/schemas/link.schema';
 import { makeShortLink } from '../factories/makeShortLink';
 import { generateAccessToken } from '@/lib/jwt';
 
@@ -14,11 +13,15 @@ describe('PATCH /api/link/my-links/:linkId', () => {
     await clearDatabase();
   });
 
+  beforeEach(async () => {
+    await clearDatabase();
+  });
+
   afterAll(async () => {
     await app.close();
   });
 
-  it.skip('returns 200 with success message and links', async () => {
+  it('returns 200 with success message and links', async () => {
     const { user } = await makeUser();
     const { link } = await makeShortLink({ userId: user.id });
     const token = generateAccessToken({ userId: user.id });

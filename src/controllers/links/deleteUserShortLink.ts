@@ -8,6 +8,7 @@ export async function deleteUserShortLinkHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
+  const { userId } = request.user;
   const { linkId } = request.params as { linkId: string };
 
   try {
@@ -19,6 +20,14 @@ export async function deleteUserShortLinkHandler(
     if (!link) {
       reply.status(404).send({
         message: 'Short link not found',
+        status: 'error',
+      });
+      return;
+    }
+
+    if (link.userId !== userId) {
+      reply.status(403).send({
+        message: 'You are not authorized to update this short link',
         status: 'error',
       });
       return;
